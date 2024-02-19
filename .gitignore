@@ -1,0 +1,7 @@
+*.pyc
+pyproject.toml
+__pycache__
+venv
+.idea
+.env
+db.sqlite3
