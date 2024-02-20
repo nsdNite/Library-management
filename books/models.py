@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 
 from library_management import settings
 
@@ -30,3 +30,10 @@ class Borrowing(models.Model):
         related_name="borrowings",
         on_delete=models.CASCADE,
     )
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            with transaction.atomic():
+                self.book.inventory -= 1
+                self.book.save(update_fields=["inventory"])
+        super().save(*args, **kwargs)
