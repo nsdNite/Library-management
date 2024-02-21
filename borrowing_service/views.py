@@ -22,17 +22,17 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             return BorrowingDetailSerializer
         return BorrowingSerializer
 
-    @action(detail=True, methods=["POST"])
-    def return_book(self, request, pk=None):
-        """Endpoint for returning borrowed book and setting actual return date to current date.
-        Updates inventory of borrowed book by +1"""
-        borrowing = self.get_object()
-        borrowing.actual_return_date = timezone.now()
-        borrowing.save()
-
-        borrowing.book.inventory += 1
-        borrowing.book.save(update_fields=["inventory"])
-
-        serializer = self.get_serializer(borrowing)
-
-        return Response(serializer.data)
+    # @action(detail=True, methods=["POST"])
+    # def return_book(self, request, pk=None):
+    #     """Endpoint for returning borrowed book and setting actual return date to current date.
+    #     Updates inventory of borrowed book by +1"""
+    #     borrowing = self.get_object()
+    #     borrowing.actual_return_date = timezone.now()
+    #     borrowing.save()
+    #
+    #     borrowing.book.inventory += 1
+    #     borrowing.book.save(update_fields=["inventory"])
+    #
+    #     serializer = self.get_serializer(borrowing)
+    #
+    #     return Response(serializer.data)

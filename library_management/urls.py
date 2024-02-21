@@ -12,5 +12,5 @@ router_main.registry.extend(borrowing_router.registry)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router_main.urls)),
-    path("user/", include("user.urls", namespace="user")),
+    path("api/user/", include("user.urls", namespace="user")),
 ]
