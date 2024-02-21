@@ -1,6 +1,4 @@
-from django.db import models, transaction
-
-from library_management import settings
+from django.db import models
 
 
 class Book(models.Model):
@@ -16,24 +14,3 @@ class Book(models.Model):
         max_length=10, choices=CoverType.choices, default=CoverType.SOFT
     )
     daily_fee = models.DecimalField(max_digits=2, decimal_places=2)
-
-
-class Borrowing(models.Model):
-    borrow_date = models.DateField(auto_now_add=True)
-    expected_return_date = models.DateField()
-    actual_return_date = models.DateField()
-    book = models.ForeignKey(
-        Book, related_name="borrowings", on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name="borrowings",
-        on_delete=models.CASCADE,
-    )
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            with transaction.atomic():
-                self.book.inventory -= 1
-                self.book.save(update_fields=["inventory"])
-        super().save(*args, **kwargs)
