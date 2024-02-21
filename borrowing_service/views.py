@@ -22,23 +22,6 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             return BorrowingDetailSerializer
         return BorrowingSerializer
 
-    @action(detail=False, methods=["get"])
-    def get_borrowing_by_user_and_status(self, request):
-        """Endpoint for getting borrowing by user id and active status"""
-        user_id = request.query_params.get("user_id")
-        is_active = request.query_params.get("is_active") == "true"
-
-        queryset = self.get_queryset().filter(user_id=user_id)
-
-        if is_active:
-            queryset = queryset.filter(actual_return_date__isnull=True)
-        else:
-            queryset = queryset.exclude(actual_return_date__isnull=True)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return Response(serializer.data)
-
     @action(detail=True, methods=["POST"])
     def return_book(self, request, pk=None):
         """Endpoint for returning borrowed book and setting actual return date to current date.
