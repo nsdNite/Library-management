@@ -1,4 +1,4 @@
-from django.db.backends.base.base.BaseDatabaseWrapper import timezone
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -20,6 +20,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             return BorrowingListSerializer
         if self.action == "retrieve":
             return BorrowingDetailSerializer
+        return BorrowingSerializer
 
     @action(detail=False, methods=["get"])
     def get_borrowing_by_user_and_status(self, request):
