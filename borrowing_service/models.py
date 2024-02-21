@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 
+from datetime import datetime, date
+
 from library_management import settings
 from books.models import Book
 
@@ -18,15 +20,23 @@ class Borrowing(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def clean(self):
-        if self.expected_return_date < self.borrow_date:
-            return ValidationError(
-                "Expected return date cannot be before borrowing date."
+    def validate(self):
+        current_date = datetime.now()
+        borrow_date = datetime.date(current_date)
+        if self.expected_return_date <= borrow_date:
+            raise ValidationError(
+                "Expected return date must be after borrow date."
             )
 
+        if self.actual_return_date and self.actual_return_date <= borrow_date:
+            raise ValidationError(
+                "Actual return date must be after borrow date."
+            )
+
+    def clean(self):
+        self.validate()
+        super().clean()
+
     def save(self, *args, **kwargs):
-        if not self.pk:
-            with transaction.atomic():
-                self.book.inventory -= 1
-                self.book.save(update_fields=["inventory"])
+        self.full_clean()
         super().save(*args, **kwargs)
