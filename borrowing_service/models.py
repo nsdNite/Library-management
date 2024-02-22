@@ -23,12 +23,12 @@ class Borrowing(models.Model):
     def validate(self):
         current_date = datetime.now()
         borrow_date = datetime.date(current_date)
-        if self.expected_return_date <= borrow_date:
+        if self.expected_return_date < borrow_date:
             raise ValidationError(
                 "Expected return date must be after borrow date."
             )
 
-        if self.actual_return_date and self.actual_return_date <= borrow_date:
+        if self.actual_return_date and self.actual_return_date < borrow_date:
             raise ValidationError(
                 "Actual return date must be after borrow date."
             )
