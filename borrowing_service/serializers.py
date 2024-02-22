@@ -18,6 +18,8 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "user",
         )
 
+        read_only_fields = ("id", "borrow_date", "actual_return_date", "user")
+
 
 class BorrowingDetailSerializer(serializers.ModelSerializer):
     book = BookDetailSerializer(read_only=True)
@@ -42,6 +44,7 @@ class BorrowingListSerializer(serializers.ModelSerializer):
             "id",
             "borrow_date",
             "expected_return_date",
+            "actual_return_date",
             "user",
         )
 
@@ -52,6 +55,8 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
         fields = ("id", "expected_return_date", "book", "user")
+
+        read_only_fields = ("id", "user")
 
     def validate(self, data):
         """Validate next items:
@@ -77,3 +82,40 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         book.save()
 
         return Borrowing.objects.create(**validated_data)
+
+
+class BorrowingReturnSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user",
+        )
+        read_only_fields = (
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+        )
+
+    def validate(self, data):
+        """Validate if actual return date is after borrowing date."""
+        if self.instance.actual_return_date is not None:
+            raise serializers.ValidationError(
+                "This borrowing has been already returned!."
+            )
+
+        current_date = datetime.now()
+        return_date = datetime.date(current_date)
+        if self.instance.borrow_date > return_date:
+            raise serializers.ValidationError(
+                "Actual return date must be after borrow date."
+            )
+
+        return data
