@@ -13,7 +13,7 @@ class Book(models.Model):
     cover = models.CharField(
         max_length=10, choices=CoverType.choices, default=CoverType.SOFT
     )
-    daily_fee = models.DecimalField(max_digits=2, decimal_places=2)
+    daily_fee = models.DecimalField(max_digits=4, decimal_places=2)
 
     def __str__(self):
         return f"{self.title} by {self.author}"
