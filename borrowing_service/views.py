@@ -1,9 +1,9 @@
 from datetime import datetime
 
 
-from django.utils import timezone
-from rest_framework import status, viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from borrowing_service.models import Borrowing
@@ -19,15 +19,25 @@ from borrowing_service.serializers import (
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
 
     def get_queryset(self):
         """Filter borrowings by user and by status(active)
         endpoint:
+
         GET /api/borrowings/?user_id=123&is_active=true
+
+        Prohibits user to view other borrowings rather than his ows.
+        Admin can view all borrowings
         """
         queryset = Borrowing.objects.all()
         user_id = self.request.query_params.get("user_id", None)
         is_active = self.request.query_params.get("is_active", None)
+
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(user=self.request.user)
 
         if user_id:
             queryset = queryset.filter(user_id=user_id)
@@ -43,6 +53,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return BorrowingDetailSerializer
         if self.action == "create":
+
             return BorrowingCreateSerializer
         if self.action == "return_book":
             return BorrowingReturnSerializer
@@ -52,7 +63,9 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["POST"], url_path="return")
     def return_book(self, request, pk=None):
         """Endpoint for returning borrowed book and setting actual return date to current date.
-        Increases inventory of borrowed book by 1."""
+        Increases inventory of borrowed book by 1.
+        Prohibits user to return non their books.
+        """
 
         current_date = datetime.now()
         return_date = datetime.date(current_date)
@@ -60,6 +73,14 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         borrowing = self.get_object()
         serializer = self.get_serializer(borrowing, data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        if borrowing.user != request.user:
+            return Response(
+                {
+                    "detail": "You don't have permission to return this borrowing"
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         borrowing.actual_return_date = return_date
         borrowing.save()
