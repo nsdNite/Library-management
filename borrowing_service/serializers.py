@@ -1,9 +1,10 @@
+from datetime import datetime
+
 from rest_framework import serializers
 
 from books.serializers import BookDetailSerializer
 from borrowing_service.models import Borrowing
-
-from datetime import datetime
+from borrowing_service.telegram_notifications import send_telegram_notification
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
@@ -76,10 +77,14 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        """Create a new borrowing, lowering book's inventory by 1."""
+        """Create a new borrowing, lowering book's inventory by 1.
+        Send notification about borrowing creation to TG bot"""
         book = validated_data.get("book")
         book.inventory -= 1
         book.save()
+
+        message = f"New borrowing: {book} - {validated_data['user']}."
+        send_telegram_notification(message)
 
         return Borrowing.objects.create(**validated_data)
 
