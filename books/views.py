@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser, AllowAny
 
 from books.models import Book
 from books.serializers import (
@@ -10,7 +11,6 @@ from books.serializers import (
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
-    # permission_classes = [IsAuthenticated]
     # pagination_class = BookPagination
 
     def get_serializer_class(self):
@@ -21,3 +21,15 @@ class BookViewSet(viewsets.ModelViewSet):
             return BookDetailSerializer
 
         return BookSerializer
+
+    def get_permissions(self):
+        if self.action in ("create", "update", "partial_update", "destroy"):
+            self.permission_classes = [
+                IsAdminUser,
+            ]
+        if self.action in ("list", "retrieve"):
+            self.permission_classes = [
+                AllowAny,
+            ]
+
+        return super().get_permissions()
