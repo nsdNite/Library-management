@@ -14,6 +14,7 @@ from borrowing_service.serializers import (
     BorrowingCreateSerializer,
     BorrowingReturnSerializer,
 )
+from borrowing_service.telegram_notifications import send_telegram_notification
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
@@ -86,5 +87,8 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
         borrowing.book.inventory += 1
         borrowing.book.save(update_fields=["inventory"])
+
+        message = f"Returned borrowing: {borrowing.book} - {borrowing.user} at {return_date}"
+        send_telegram_notification(message)
 
         return Response(serializer.data)
