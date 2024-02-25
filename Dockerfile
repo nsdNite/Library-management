@@ -1,6 +1,6 @@
 FROM python:3.10.0-slim
 
-LABEL maintainer ="nsd7night@gmail.com"
+LABEL maintainer="nsd7night@gmail.com"
 
 ENV PYTHONUNBUFFERED 1
 
