@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from borrowing_service.models import Borrowing
+from borrowing_service.pagination import BorrowingPagination
 from borrowing_service.serializers import (
     BorrowingSerializer,
     BorrowingListSerializer,
@@ -23,6 +24,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     permission_classes = [
         IsAuthenticated,
     ]
+    pagination_class = BorrowingPagination
 
     def get_queryset(self):
         """Filter borrowings by user and by status(active)
