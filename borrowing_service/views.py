@@ -88,7 +88,10 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         borrowing.book.inventory += 1
         borrowing.book.save(update_fields=["inventory"])
 
-        message = f"Returned borrowing: {borrowing.book} - {borrowing.user} at {return_date}"
+        message = (
+            f"Returned borrowing: {borrowing.book} - {borrowing.user} at {return_date}. "
+            f"Inventory: {borrowing.book.inventory}"
+        )
         send_telegram_notification(message)
 
         return Response(serializer.data)
