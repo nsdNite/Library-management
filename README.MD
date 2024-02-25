@@ -1,4 +1,4 @@
-# Social Media API 📚📚📚
+# Library API 📚📚📚
 
 API for library management with borrowings and status updates via Telegram.
 
