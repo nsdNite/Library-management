@@ -1,6 +1,6 @@
 from datetime import datetime
 
-
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -61,6 +61,18 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         return BorrowingSerializer
 
     @action(detail=True, methods=["POST"], url_path="return")
+    @extend_schema(
+        request=BorrowingSerializer,
+        responses={200: BorrowingSerializer},
+        parameters=[
+            OpenApiParameter(
+                "Authorization",
+                type=str,
+                location="header",
+                description="JWT Token",
+            ),
+        ],
+    )
     def return_book(self, request, pk=None):
         """Endpoint for returning borrowed book and setting actual return date to current date.
         Increases inventory of borrowed book by 1.
