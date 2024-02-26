@@ -23,7 +23,7 @@ Copy .env-sample -> .env and populate with all required data.
 docker-compose up --build
 ```
 
-Note: superuser is created automatically with .env info if no users exist in database.
+Note: superuser is created automatically with .env info if no users exist in database.  
 Note: if you receive telegram error for chat id, refer to logs, Telegram may change chat id if every user is superuser in chat.
 ## Accessing API 🔓
 
