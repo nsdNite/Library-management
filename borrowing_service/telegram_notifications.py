@@ -11,9 +11,7 @@ def send_telegram_notification(message: str) -> None:
     load_dotenv(dotenv_path)
 
     bot_token = os.environ.get("TELEGRAM_TOKEN")
-    print(bot_token)
     chat_id = os.environ.get("TELEGRAM_CHAT_ID")
-    print(chat_id)
     if bot_token and chat_id:
         url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
         data = {
